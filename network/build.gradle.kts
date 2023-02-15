@@ -81,8 +81,13 @@ afterEvaluate {
         publications {
            create<MavenPublication>("maven"){
                groupId = "com.github.hashir1296"
-               artifactId = "network-core"
+               artifactId = "android-core"
                version = "0.1.0"
+
+               afterEvaluate {
+                   from(components["release"])
+               }
+
            }
         }
     }

@@ -1,10 +1,4 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    `maven-publish`
-}
-group = "com.darvis.androidcore"
-version = "0.1.0"
-
 buildscript {
     repositories {
         google()
