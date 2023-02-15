@@ -23,6 +23,23 @@ android {
         jvmTarget = "1.8"
     }
 
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        getByName("debug") {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
 }
 
 dependencies {
@@ -63,8 +80,8 @@ afterEvaluate {
     publishing{
         publications {
            create<MavenPublication>("maven"){
-               groupId = "com.darvis.core.network"
-               artifactId = "library"
+               groupId = "com.github.hashir1296"
+               artifactId = "network-core"
                version = "0.1.0"
            }
         }
