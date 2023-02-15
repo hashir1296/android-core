@@ -66,7 +66,6 @@ afterEvaluate {
                groupId = "com.darvis.core.network"
                artifactId = "library"
                version = "0.1.0"
-               from(components["java"])
            }
         }
     }
