@@ -4,6 +4,7 @@ plugins {
     kotlin("kapt")
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("maven-publish")
 }
 
 android {
@@ -56,5 +57,17 @@ dependencies {
         // excluding org.json which is provided by Android
         exclude(group = "org.json", module = "json")
     }
+}
 
+afterEvaluate {
+    publishing{
+        publications {
+           create<MavenPublication>("maven"){
+               groupId = "com.darvis.core.network"
+               artifactId = "library"
+               version = "0.1.0"
+               from(components["java"])
+           }
+        }
+    }
 }
