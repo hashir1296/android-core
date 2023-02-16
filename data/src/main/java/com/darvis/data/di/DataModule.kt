@@ -13,9 +13,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DataModule {
 
-
     @Singleton
     @Provides
     fun provideDataStoreManager(@ApplicationContext context: Context) =
-        DataStoreManager(context = context)
+        DataStoreManager()
 }
