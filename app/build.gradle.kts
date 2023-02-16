@@ -49,4 +49,5 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0-alpha01")
 
     implementation(project(":network"))
+    implementation(project(":data"))
 }
