@@ -3,6 +3,8 @@ plugins {
     kotlin("android")
     kotlin("kapt")
     id("dagger.hilt.android.plugin")
+    id("maven-publish")
+
 }
 
 android {
@@ -49,5 +51,21 @@ dependencies {
     //Data store
     val dataStore = "1.0.0"
     implementation("androidx.datastore:datastore-preferences:$dataStore")
+}
 
+afterEvaluate {
+    publishing{
+        publications {
+            create<MavenPublication>("maven"){
+                groupId = "com.github.hashir1296"
+                artifactId = "android-core"
+                version = "0.1.0"
+
+                afterEvaluate {
+                    from(components["debug"])
+                }
+
+            }
+        }
+    }
 }

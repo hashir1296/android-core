@@ -10,8 +10,9 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import javax.inject.Inject
 
-class Request(private val httpClient: HttpClient, private val context: Context) {
+class Request {
     private lateinit var serviceUrl: Url
     private lateinit var method: HttpMethod
     private var queryParams: HashMap<String, String>? = null
@@ -23,6 +24,11 @@ class Request(private val httpClient: HttpClient, private val context: Context) 
     private var formUrlEncodedParams: HashMap<String, String>? = null
     private var requestBody: Any? = null
 
+    @Inject
+    lateinit var httpClient: HttpClient
+
+    @Inject
+    lateinit var context: Context
 
     fun httpMethod(
         httpMethod: HttpMethod,
@@ -94,6 +100,9 @@ class Request(private val httpClient: HttpClient, private val context: Context) 
                         }
                     }
                 }
+
+                //Set token
+                headers.append("Authorization", SessionManager.provideAccessTokenWithBearer())
 
                 contentType.let { type ->
                     headers.append(type.contentType, type.contentSubtype)

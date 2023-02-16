@@ -54,14 +54,14 @@ object NetworkModule {
             serializer = jsonSerializer
         }
 
-        //TODO: Configure and load tokens from local storage
+/*        //TODO: Configure and load tokens from local storage
         install(Auth) {
             bearer {
                 loadTokens {
                     BearerTokens("accessToken", "refreshToken")
                 }
             }
-        }
+        }*/
 
         install(ResponseObserver) {
             onResponse { httpResponse ->
@@ -112,5 +112,5 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideApiService(httpClient: HttpClient, @ApplicationContext context: Context) =
-        Request(httpClient = httpClient, context = context)
+        Request()
 }
