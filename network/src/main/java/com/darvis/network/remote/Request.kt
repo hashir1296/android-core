@@ -3,6 +3,7 @@ package com.darvis.network.remote
 import android.content.Context
 import com.darvis.network.R
 import com.darvis.network.di.NetworkModule
+import com.darvis.network.models.ErrorModel
 import com.darvis.network.models.NetworkResult
 import io.ktor.client.*
 import io.ktor.client.features.*
@@ -10,7 +11,10 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.utils.io.*
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
+
 
 class Request {
     private lateinit var serviceUrl: Url
@@ -29,6 +33,10 @@ class Request {
 
     @Inject
     lateinit var context: Context
+
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
 
     fun httpMethod(
         httpMethod: HttpMethod,
@@ -73,9 +81,9 @@ class Request {
         }
     }
 
-    suspend fun send(): NetworkResult<HttpResponse> {
+    suspend fun send(): NetworkResult<HttpResponse, ErrorModel> {
         return try {
-            NetworkResult.Success(httpClient.request {
+            NetworkResult.Success(httpClient.request<HttpResponse> {
                 //Set method
                 method = this@Request.method
                 //Set url and add query params if any
@@ -124,22 +132,39 @@ class Request {
             })
         } catch (ex: RedirectResponseException) {
             //3xx exceptions
+            val errorModel = json.decodeFromString(
+                ErrorModel.serializer(), ex.response.content.readUTF8Line() ?: ""
+            )
             NetworkResult.Error(
-                message = ex.response.status.description, code = ex.response.status.value
+                message = ex.response.status.description,
+                code = ex.response.status.value,
+                errorBody = errorModel
             )
         } catch (ex: ClientRequestException) {
             //4xx exceptions
+            val errorModel = json.decodeFromString(
+                ErrorModel.serializer(), ex.response.content.readUTF8Line() ?: ""
+            )
             NetworkResult.Error(
-                message = ex.response.status.description, code = ex.response.status.value
+                message = ex.response.status.description,
+                code = ex.response.status.value,
+                errorBody = errorModel
             )
         } catch (ex: ServerResponseException) {
             //5xx exceptions
+            val errorModel = json.decodeFromString(
+                ErrorModel.serializer(), ex.response.content.readUTF8Line() ?: ""
+            )
             NetworkResult.Error(
-                message = ex.response.status.description, code = ex.response.status.value
+                message = ex.response.status.description,
+                code = ex.response.status.value,
+                errorBody = errorModel
             )
         } catch (ex: Exception) {
             NetworkResult.Error(
-                message = ex.message ?: context.getString(R.string.something_went_wrong), code = -1
+                message = ex.message ?: context.getString(R.string.something_went_wrong),
+                code = -1,
+                errorBody = null
             )
         }
     }

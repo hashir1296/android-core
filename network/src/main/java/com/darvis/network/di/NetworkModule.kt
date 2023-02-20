@@ -111,6 +111,6 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideApiService(httpClient: HttpClient, @ApplicationContext context: Context) =
+    fun provideApiService(httpClient: HttpClient, @ApplicationContext context: Context , serializer : KotlinxSerializer) =
         Request()
 }
