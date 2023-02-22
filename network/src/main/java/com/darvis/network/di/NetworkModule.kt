@@ -56,7 +56,7 @@ object NetworkModule {
             serializer = jsonSerializer
         }
 
-/*        //TODO: Configure and load tokens from local storage
+/*
         install(Auth) {
             bearer {
                 loadTokens {
