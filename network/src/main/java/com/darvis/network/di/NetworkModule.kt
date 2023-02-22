@@ -18,6 +18,7 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
 import io.ktor.client.features.observer.*
+import io.ktor.client.features.websocket.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -34,6 +35,7 @@ object NetworkModule {
 
     const val Baseurl = "172.16.20.161"
     private const val TIME_OUT = 15000L //15 seconds
+    private const val SOCKET_PING_INTERVAL = 5000L
     private val TAG = NetworkModule::class.simpleName
 
     @Singleton
@@ -111,6 +113,7 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideApiService(httpClient: HttpClient, @ApplicationContext context: Context , serializer : KotlinxSerializer) =
-        Request()
+    fun provideApiService(
+        httpClient: HttpClient, @ApplicationContext context: Context, serializer: KotlinxSerializer
+    ) = Request()
 }
