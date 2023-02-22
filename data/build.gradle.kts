@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     id("com.android.library")
     kotlin("android")
@@ -46,7 +48,7 @@ android {
 dependencies {
     // Room
     val room = "2.4.2"
-    implementation("androidx.room:room-runtime:$room}")
+    implementation("androidx.room:room-runtime:$room")
     implementation("androidx.room:room-ktx:$room")
     kapt("androidx.room:room-compiler:$room")
 
@@ -66,7 +68,7 @@ afterEvaluate {
             create<MavenPublication>("maven"){
                 groupId = "com.github.hashir1296"
                 artifactId = "android-core"
-                version = "0.1.0"
+                version = "1.0.0"
 
                 afterEvaluate {
                     from(components["debug"])

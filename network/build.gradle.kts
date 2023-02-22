@@ -84,7 +84,7 @@ afterEvaluate {
            create<MavenPublication>("maven"){
                groupId = "com.github.hashir1296"
                artifactId = "android-core"
-               version = "0.1.0"
+               version = "1.0.0"
 
                afterEvaluate {
                    from(components["debug"])

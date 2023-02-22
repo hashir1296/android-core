@@ -220,17 +220,4 @@ class Request {
         }
     }
 
-    /* private inline fun <reified T> NetworkResult<HttpResponse>.safeReceive(): T? {
-         when (this) {
-             is NetworkResult.Error -> {
-             }
-             is NetworkResult.Loading -> {}
-             is NetworkResult.Success -> {
-                 data?.content?.let {
-                     return data.receive<T>()
-                 }
-             }
-         }
-         return null
-     }*/
 }
