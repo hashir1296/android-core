@@ -59,7 +59,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:${okhttp}")
     implementation("com.facebook.stetho:stetho-okhttp3:1.6.0")
 
-    val ktor_version = "1.6.3"
+    val ktor_version = "2.2.3"
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-android:$ktor_version")
     implementation("io.ktor:ktor-client-auth:$ktor_version")
