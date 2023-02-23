@@ -13,7 +13,6 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.reflect.*
 import io.socket.client.IO
 import io.socket.client.SocketIOException
 import io.socket.emitter.Emitter
