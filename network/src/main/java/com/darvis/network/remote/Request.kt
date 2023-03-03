@@ -3,7 +3,6 @@ package com.darvis.network.remote
 import android.content.Context
 import android.util.Log
 import com.darvis.network.R
-import com.darvis.network.di.NetworkModule
 import com.darvis.network.models.ErrorModel
 import com.darvis.network.models.NetworkResult
 import io.ktor.client.*
@@ -50,16 +49,10 @@ class Request {
     }
 
     fun url(
-        host: String = NetworkModule.Baseurl,
-        port: Int,
-        protocol: URLProtocol = URLProtocol.HTTP,
-        endPoint: String
+        host: String, port: Int, protocol: URLProtocol = URLProtocol.HTTP, endPoint: String
     ) = apply {
         serviceUrl = URLBuilder(
-            protocol = protocol,
-            host = host,
-            port = port,
-            pathSegments = listOf(endPoint)
+            protocol = protocol, host = host, port = port, pathSegments = listOf(endPoint)
         ).build()
     }
 
@@ -73,12 +66,11 @@ class Request {
         contentType = type
     }
 
-    fun additionalHeaders(additionalHeadersMap: HashMap<String, String>) =
-        apply {
-            if (additionalHeadersMap.isNotEmpty()) {
-                additionalHeaders = additionalHeadersMap
-            }
+    fun additionalHeaders(additionalHeadersMap: HashMap<String, String>) = apply {
+        if (additionalHeadersMap.isNotEmpty()) {
+            additionalHeaders = additionalHeadersMap
         }
+    }
 
     fun requestBody(body: Any?) = apply {
         this@Request.requestBody = body
@@ -90,7 +82,7 @@ class Request {
         }
     }
 
-    suspend  fun send(): NetworkResult<HttpResponse, ErrorModel> {
+    suspend fun send(): NetworkResult<HttpResponse, ErrorModel> {
         return try {
             val apiResponse = httpClient.request {
                 //Set method
@@ -120,8 +112,7 @@ class Request {
 
                 //Set token
                 headers.append(
-                    "Authorization",
-                    SessionManager.provideAccessTokenWithBearer()
+                    "Authorization", SessionManager.provideAccessTokenWithBearer()
                 )
 
                 contentType.let { type ->
@@ -175,15 +166,14 @@ class Request {
             )
         } catch (ex: Exception) {
             NetworkResult.Error(
-                message = ex.message
-                    ?: context.getString(R.string.something_went_wrong),
+                message = ex.message ?: context.getString(R.string.something_went_wrong),
                 code = -1,
                 errorBody = null
             )
         }
     }
 
-   object Socket {
+    object Socket {
         private var mSocket: io.socket.client.Socket? = null
         fun initSocket(
             host: String, protocol: URLProtocol = URLProtocol.HTTP, port: Int
