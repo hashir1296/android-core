@@ -83,7 +83,7 @@ object NetworkModule {
                 httpsURLConnection.sslSocketFactory = SSLContext.getInstance("TLS").apply {
                     this.init(null, arrayOf(TrustAllX509TrustManager()), SecureRandom())
                 }.socketFactory
-                httpsURLConnection.setHostnameVerifier { hostname, session -> true }
+                httpsURLConnection.setHostnameVerifier { _, _ -> true }
             }
         }
     }
