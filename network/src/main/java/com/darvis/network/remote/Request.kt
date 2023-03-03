@@ -78,6 +78,8 @@ class Request {
         }
     }
 
+    fun sendAuthHeader()
+
     suspend fun send(): NetworkResult<HttpResponse, ErrorModel> {
         return try {
             val apiResponse = httpClient.request {
@@ -107,9 +109,9 @@ class Request {
                 }
 
                 //Set token
-                headers.append(
+               /* headers.append(
                     "Authorization", SessionManager.provideAccessTokenWithBearer()
-                )
+                )*/
 
                 contentType.let { type ->
                     headers.append(type.contentType, type.contentSubtype)

@@ -53,4 +53,7 @@ dependencies {
     implementation(project(":network"))
     implementation("androidx.core:core-ktx:+")
     // implementation(project(":data"))
+
+    val ktor_version = "2.2.3"
+    implementation("io.ktor:ktor-client-core:$ktor_version")
 }
