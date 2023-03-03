@@ -2,7 +2,6 @@ plugins {
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
-    id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("maven-publish")
 }
@@ -43,15 +42,11 @@ android {
 }
 
 dependencies {
+    implementation("androidx.core:core-ktx:+")
     //Kotlin Coroutines
     val coroutinesVersion = "1.6.4"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
-
-    // Hilt dependencies
-    val hiltVersion = "2.44.2"
-    implementation("com.google.dagger:hilt-android:2.44.2")
-    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
     //Okhttp & Stetho
      val okhttp = "4.9.0"

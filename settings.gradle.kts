@@ -1,4 +1,4 @@
 rootProject.name = "Android Core"
-//include ("app")
+include ("app")
 include ("network")
 //include("data")

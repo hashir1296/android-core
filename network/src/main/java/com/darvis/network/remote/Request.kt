@@ -1,8 +1,7 @@
 package com.darvis.network.remote
 
-import android.content.Context
 import android.util.Log
-import com.darvis.network.R
+import com.darvis.network.di.NetworkModule
 import com.darvis.network.models.ErrorModel
 import com.darvis.network.models.NetworkResult
 import io.ktor.client.*
@@ -16,7 +15,6 @@ import io.socket.client.IO
 import io.socket.client.SocketIOException
 import io.socket.emitter.Emitter
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
 
 private const val TAG = "Network Request"
 
@@ -32,11 +30,9 @@ class Request {
     private var formUrlEncodedParams: HashMap<String, String>? = null
     private var requestBody: Any? = null
 
-    @Inject
-    lateinit var httpClient: HttpClient
-
-    @Inject
-    lateinit var context: Context
+    private val httpClient: HttpClient by lazy {
+        NetworkModule.provideKtorHttpClient()
+    }
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -166,9 +162,7 @@ class Request {
             )
         } catch (ex: Exception) {
             NetworkResult.Error(
-                message = ex.message ?: context.getString(R.string.something_went_wrong),
-                code = -1,
-                errorBody = null
+                message = ex.message ?: "Something went wrong", code = -1, errorBody = null
             )
         }
     }

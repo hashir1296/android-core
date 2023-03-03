@@ -2,10 +2,6 @@ package com.darvis.network.di
 
 import android.util.Log
 import com.darvis.network.helpers.TrustAllX509TrustManager
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.plugins.*
@@ -13,27 +9,21 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.plugins.observer.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.http.auth.*
-import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import java.security.SecureRandom
-import javax.inject.Singleton
 import javax.net.ssl.SSLContext
 
-@InstallIn(SingletonComponent::class)
-@Module
+private const val TIME_OUT = 15000L //15 seconds
+private const val SOCKET_PING_INTERVAL = 5000L
+
 object NetworkModule {
 
-    private const val TIME_OUT = 15000L //15 seconds
-    private const val SOCKET_PING_INTERVAL = 5000L
+
     private val TAG = NetworkModule::class.simpleName
 
-    @Singleton
-    @Provides
-    fun provideKtorHttpClient(jsonSerializer: Json) = HttpClient(Android) {
+    fun provideKtorHttpClient() = HttpClient(Android) {
         //How we want to log our apis
         install(Logging) {
             level = LogLevel.ALL
@@ -45,9 +35,8 @@ object NetworkModule {
         }
 
         //How we want to serialize our data, could be via Moshi , Gson, KotlinxSerializer etc.
-
         install(ContentNegotiation) {
-            json(json = jsonSerializer)
+            json(json = provideSerializer())
         }
 
 
@@ -88,8 +77,6 @@ object NetworkModule {
         }
     }
 
-    @Singleton
-    @Provides
     fun provideSerializer() = Json {
         isLenient = true
         prettyPrint = true
