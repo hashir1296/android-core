@@ -29,6 +29,7 @@ class Request {
     )
     private var formUrlEncodedParams: HashMap<String, String>? = null
     private var requestBody: Any? = null
+    private var appendAuthHeader: Boolean = true
 
     private val httpClient: HttpClient by lazy {
         NetworkModule.provideKtorHttpClient()
@@ -77,7 +78,10 @@ class Request {
             formUrlEncodedParams = paramsMap
         }
     }
-    
+
+    fun sendAuthHeader(value: Boolean) = apply {
+        appendAuthHeader = value
+    }
 
     suspend fun send(): NetworkResult<HttpResponse, ErrorModel> {
         return try {
@@ -108,9 +112,9 @@ class Request {
                 }
 
                 //Set token
-               /* headers.append(
+                if (appendAuthHeader) headers.append(
                     "Authorization", SessionManager.provideAccessTokenWithBearer()
-                )*/
+                )
 
                 contentType.let { type ->
                     headers.append(type.contentType, type.contentSubtype)
