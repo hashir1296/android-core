@@ -77,8 +77,7 @@ class Request {
             formUrlEncodedParams = paramsMap
         }
     }
-
-    fun sendAuthHeader()
+    
 
     suspend fun send(): NetworkResult<HttpResponse, ErrorModel> {
         return try {
@@ -167,6 +166,10 @@ class Request {
                 message = ex.message ?: "Something went wrong", code = -1, errorBody = null
             )
         }
+    }
+
+    inline fun <reified T>receiveAs(){
+
     }
 
     object Socket {
