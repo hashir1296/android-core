@@ -14,6 +14,8 @@ import io.ktor.http.*
 import io.socket.client.IO
 import io.socket.client.SocketIOException
 import io.socket.emitter.Emitter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 private const val TAG = "Network Request"
@@ -46,10 +48,16 @@ class Request {
     }
 
     fun url(
-        host: String, port: Int, protocol: URLProtocol = URLProtocol.HTTP, endPoint: String
+        host: String,
+        port: Int,
+        protocol: URLProtocol = URLProtocol.HTTP,
+        endPoint: String
     ) = apply {
         serviceUrl = URLBuilder(
-            protocol = protocol, host = host, port = port, pathSegments = listOf(endPoint)
+            protocol = protocol,
+            host = host,
+            port = port,
+            pathSegments = listOf(endPoint)
         ).build()
     }
 
@@ -63,11 +71,12 @@ class Request {
         contentType = type
     }
 
-    fun additionalHeaders(additionalHeadersMap: HashMap<String, String>) = apply {
-        if (additionalHeadersMap.isNotEmpty()) {
-            additionalHeaders = additionalHeadersMap
+    fun additionalHeaders(additionalHeadersMap: HashMap<String, String>) =
+        apply {
+            if (additionalHeadersMap.isNotEmpty()) {
+                additionalHeaders = additionalHeadersMap
+            }
         }
-    }
 
     fun requestBody(body: Any?) = apply {
         this@Request.requestBody = body
@@ -113,7 +122,8 @@ class Request {
 
                 //Set token
                 if (appendAuthHeader) headers.append(
-                    "Authorization", SessionManager.provideAccessTokenWithBearer()
+                    "Authorization",
+                    SessionManager.provideAccessTokenWithBearer()
                 )
 
                 contentType.let { type ->
@@ -167,13 +177,23 @@ class Request {
             )
         } catch (ex: Exception) {
             NetworkResult.Error(
-                message = ex.message ?: "Something went wrong", code = -1, errorBody = null
+                message = ex.message ?: "Something went wrong",
+                code = -1,
+                errorBody = null
             )
         }
     }
 
-    inline fun <reified T>receiveAs(){
-
+    suspend inline fun <reified T> HttpResponse.receiveAs(): T {
+        return withContext(Dispatchers.IO) {
+            try {
+                this@receiveAs.body<T>()
+            } catch (ex: Exception) {
+                withContext(Dispatchers.Main) {
+                    throw ex
+                }
+            }
+        }
     }
 
     object Socket {

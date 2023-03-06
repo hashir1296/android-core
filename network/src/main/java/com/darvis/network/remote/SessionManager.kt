@@ -27,4 +27,6 @@ object SessionManager {
         return refreshToken
     }
 
+    fun isUserLoggedIn() = accessToken.isNotEmpty()
+
 }
