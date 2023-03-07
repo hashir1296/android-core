@@ -23,7 +23,7 @@ private const val TAG = "Network Request"
 class Request {
     private lateinit var serviceUrl: Url
     private lateinit var method: HttpMethod
-    private var queryParams: HashMap<String, String>? = null
+    private var queryParams: HashMap<String, String?>? = null
     private var additionalHeaders: HashMap<String, String>? = null
     private var contentType: ContentType = ContentType(
         contentType = ContentType.Application.Json.contentType,
@@ -61,7 +61,7 @@ class Request {
         ).build()
     }
 
-    fun queryParams(paramsMap: HashMap<String, String>) = apply {
+    fun queryParams(paramsMap: HashMap<String, String?>) = apply {
         if (paramsMap.isNotEmpty()) {
             queryParams = paramsMap
         }
@@ -107,7 +107,10 @@ class Request {
                     queryParams?.let {
                         if (it.isNotEmpty()) {
                             it.forEach { entry ->
-                                parameters.append(entry.key, entry.value)
+                                //Only append entry if value is not null
+                                entry.value?.let { value ->
+                                    parameters.append(entry.key, value)
+                                }
                             }
                         }
                     }

@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        loginUserNetworkRequest()
+        //loginUserNetworkRequest()
     }
 
     private fun loginUserNetworkRequest() {
