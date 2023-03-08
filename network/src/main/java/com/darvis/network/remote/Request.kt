@@ -48,16 +48,10 @@ class Request {
     }
 
     fun url(
-        host: String,
-        port: Int,
-        protocol: URLProtocol = URLProtocol.HTTP,
-        endPoint: String
+        host: String, port: Int, protocol: URLProtocol = URLProtocol.HTTP, endPoint: String
     ) = apply {
         serviceUrl = URLBuilder(
-            protocol = protocol,
-            host = host,
-            port = port,
-            pathSegments = listOf(endPoint)
+            protocol = protocol, host = host, port = port, pathSegments = listOf(endPoint)
         ).build()
     }
 
@@ -71,12 +65,11 @@ class Request {
         contentType = type
     }
 
-    fun additionalHeaders(additionalHeadersMap: HashMap<String, String>) =
-        apply {
-            if (additionalHeadersMap.isNotEmpty()) {
-                additionalHeaders = additionalHeadersMap
-            }
+    fun additionalHeaders(additionalHeadersMap: HashMap<String, String>) = apply {
+        if (additionalHeadersMap.isNotEmpty()) {
+            additionalHeaders = additionalHeadersMap
         }
+    }
 
     fun requestBody(body: Any?) = apply {
         this@Request.requestBody = body
@@ -125,13 +118,14 @@ class Request {
 
                 //Set token
                 if (appendAuthHeader) headers.append(
-                    "Authorization",
-                    SessionManager.provideAccessTokenWithBearer()
+                    "Authorization", SessionManager.provideAccessTokenWithBearer()
                 )
 
                 contentType.let { type ->
                     headers.append(type.contentType, type.contentSubtype)
                 }
+
+                contentType(contentType)
 
                 requestBody?.let {
                     setBody(it)
@@ -180,9 +174,7 @@ class Request {
             )
         } catch (ex: Exception) {
             NetworkResult.Error(
-                message = ex.message ?: "Something went wrong",
-                code = -1,
-                errorBody = null
+                message = ex.message ?: "Something went wrong", code = -1, errorBody = null
             )
         }
     }

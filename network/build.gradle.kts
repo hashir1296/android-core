@@ -12,6 +12,9 @@ android {
     defaultConfig {
         minSdk = 24
         version = "1.0.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     compileOptions {
@@ -36,6 +39,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+    sourceSets {
+        getByName("main") {
+            java {
+                srcDirs("src/main/java", "src/test/java")
+            }
         }
     }
 
@@ -74,6 +84,9 @@ dependencies {
         // excluding org.json which is provided by Android
         exclude(group = "org.json", module = "json")
     }
+
+    // Required -- JUnit 4 framework
+    testImplementation ("junit:junit:4.13.2")
 }
 
 afterEvaluate {
