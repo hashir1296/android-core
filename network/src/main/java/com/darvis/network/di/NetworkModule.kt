@@ -11,6 +11,7 @@ import io.ktor.client.plugins.observer.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.security.SecureRandom
 import javax.net.ssl.SSLContext
@@ -77,10 +78,12 @@ object NetworkModule {
         }
     }
 
-    fun provideSerializer() = Json {
+    @OptIn(ExperimentalSerializationApi::class)
+    private fun provideSerializer() = Json {
         isLenient = true
         prettyPrint = true
         ignoreUnknownKeys = true
+        explicitNulls = false
     }
 
 }
