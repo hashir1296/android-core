@@ -9,6 +9,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.plugins.observer.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -51,6 +52,24 @@ object NetworkModule {
                 }
             }
         }*/
+
+        HttpResponseValidator {
+            validateResponse { response: HttpResponse ->
+                val statusCode = response.status.value
+
+                println("HTTP status: $statusCode")
+
+                when (statusCode) {
+                    in 300..399 -> throw RedirectResponseException(response = response, cachedResponseText = response.toString())
+                    in 400..499 -> throw ClientRequestException(response = response, cachedResponseText = response.toString())
+                    in 500..599 -> throw ServerResponseException(response = response, cachedResponseText = response.toString())
+                }
+
+                if (statusCode >= 600) {
+                    throw ResponseException(response = response, cachedResponseText = response.toString())
+                }
+            }
+        }
 
 
         install(DefaultRequest) {
