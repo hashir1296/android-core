@@ -41,6 +41,14 @@ class Request {
         ignoreUnknownKeys = true
     }
 
+    private fun resetRequest() = apply {
+        queryParams = null
+        additionalHeaders = null
+        formUrlEncodedParams = null
+        requestBody = null
+    }
+
+
     fun httpMethod(
         httpMethod: HttpMethod,
     ) = apply {
@@ -141,9 +149,11 @@ class Request {
                     }
                 }
             }
+            resetRequest()
             NetworkResult.Success(apiResponse.body())
         } catch (ex: RedirectResponseException) {
             //3xx exceptions
+            resetRequest()
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
@@ -154,6 +164,7 @@ class Request {
             )
         } catch (ex: ClientRequestException) {
             //4xx exceptions
+            resetRequest()
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
@@ -164,6 +175,7 @@ class Request {
             )
         } catch (ex: ServerResponseException) {
             //5xx exceptions
+            resetRequest()
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
@@ -173,11 +185,13 @@ class Request {
                 errorBody = errorModel
             )
         } catch (ex: Exception) {
+            resetRequest()
             NetworkResult.Error(
                 message = ex.message ?: "Something went wrong", code = -1, errorBody = null
             )
         }
     }
+
 
     suspend inline fun <reified T> HttpResponse.receiveAs(): T {
         return withContext(Dispatchers.IO) {
