@@ -41,7 +41,7 @@ object NetworkModule {
         }
 
 
-        install(ResponseObserver) {
+       /* install(ResponseObserver) {
             onResponse { httpResponse ->
                 Log.d(TAG, httpResponse.toString())
                 onResponse {
@@ -50,7 +50,7 @@ object NetworkModule {
                     }
                 }
             }
-        }
+        }*/
 
 
         install(DefaultRequest) {
