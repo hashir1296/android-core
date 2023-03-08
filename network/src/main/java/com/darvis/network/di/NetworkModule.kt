@@ -42,34 +42,44 @@ object NetworkModule {
         }
 
 
-       /* install(ResponseObserver) {
+        install(ResponseObserver) {
             onResponse { httpResponse ->
-                Log.d(TAG, httpResponse.toString())
-                onResponse {
-                    if (it.status == HttpStatusCode.Unauthorized) {
-                        //navigateToLogin()
-                    }
-                }
-            }
-        }*/
-
-        HttpResponseValidator {
-            validateResponse { response: HttpResponse ->
-                val statusCode = response.status.value
-
-                println("HTTP status: $statusCode")
-
-                when (statusCode) {
-                    in 300..399 -> throw RedirectResponseException(response = response, cachedResponseText = response.toString())
-                    in 400..499 -> throw ClientRequestException(response = response, cachedResponseText = response.toString())
-                    in 500..599 -> throw ServerResponseException(response = response, cachedResponseText = response.toString())
-                }
-
-                if (statusCode >= 600) {
-                    throw ResponseException(response = response, cachedResponseText = response.toString())
+                when (httpResponse.status.value) {
+                    in 300..399 -> throw RedirectResponseException(
+                        response = httpResponse, cachedResponseText = httpResponse.toString()
+                    )
+                    in 400..499 -> throw ClientRequestException(
+                        response = httpResponse, cachedResponseText = httpResponse.toString()
+                    )
+                    in 500..599 -> throw ServerResponseException(
+                        response = httpResponse, cachedResponseText = httpResponse.toString()
+                    )
                 }
             }
         }
+
+        /*   HttpResponseValidator {
+               validateResponse { response: HttpResponse ->
+                   val statusCode = response.status.value
+                   when (statusCode) {
+                       in 300..399 -> throw RedirectResponseException(
+                           response = response, cachedResponseText = response.toString()
+                       )
+                       in 400..499 -> throw ClientRequestException(
+                           response = response, cachedResponseText = response.toString()
+                       )
+                       in 500..599 -> throw ServerResponseException(
+                           response = response, cachedResponseText = response.toString()
+                       )
+                   }
+
+                   if (statusCode >= 600) {
+                       throw ResponseException(
+                           response = response, cachedResponseText = response.toString()
+                       )
+                   }
+               }
+           }*/
 
 
         install(DefaultRequest) {
