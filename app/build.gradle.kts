@@ -50,6 +50,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0-alpha01")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("com.google.truth:truth:1.1.3")
 
     implementation(project(":network"))
 
