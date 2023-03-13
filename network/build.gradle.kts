@@ -4,6 +4,7 @@ plugins {
     kotlin("kapt")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("maven-publish")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -13,7 +14,6 @@ android {
         minSdk = 24
         version = "1.0.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     }
 
@@ -48,18 +48,19 @@ android {
             }
         }
     }
-
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:+")
+    implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.4.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("com.google.truth:truth:1.1.3")
+
     //Kotlin Coroutines
     val coroutinesVersion = "1.6.4"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
 
     //Okhttp & Stetho
      val okhttp = "4.9.0"
@@ -74,6 +75,8 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
+    testImplementation("io.ktor:ktor-client-mock:$ktor_version")
+
 
 
     //Serializer
@@ -85,8 +88,11 @@ dependencies {
         exclude(group = "org.json", module = "json")
     }
 
-    // Required -- JUnit 4 framework
-    testImplementation ("junit:junit:4.13.2")
+    // Hilt dependencies
+     val hilt = "2.38.1"
+    implementation("com.google.dagger:hilt-android:$hilt")
+    kapt("com.google.dagger:hilt-android-compiler:$hilt")
+
 }
 
 afterEvaluate {

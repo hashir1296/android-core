@@ -11,7 +11,7 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20-Beta")
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.44.2")
         classpath("org.jetbrains.kotlin:kotlin-serialization:1.7.21")
-
+        classpath ("com.google.dagger:hilt-android-gradle-plugin:2.41")
     }
 }
 

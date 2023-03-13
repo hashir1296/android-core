@@ -1,7 +1,8 @@
+@file:Suppress("unused")
+
 package com.darvis.network.remote
 
 import android.util.Log
-import com.darvis.network.di.NetworkModule
 import com.darvis.network.models.ErrorModel
 import com.darvis.network.models.NetworkResult
 import io.ktor.client.*
@@ -17,29 +18,37 @@ import io.socket.emitter.Emitter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import javax.inject.Inject
 
 private const val TAG = "Network Request"
 
 class Request {
-    private lateinit var serviceUrl: Url
-    private lateinit var method: HttpMethod
-    private var queryParams: HashMap<String, String?>? = null
-    private var additionalHeaders: HashMap<String, String>? = null
-    private var contentType: ContentType = ContentType(
+    var serviceUrl: Url? = null
+        private set
+    var method: HttpMethod? = null
+        private set
+    var queryParams: HashMap<String, String?>? = null
+        private set
+    var additionalHeaders: HashMap<String, String>? = null
+        private set
+    var contentType: ContentType = ContentType(
         contentType = ContentType.Application.Json.contentType,
         ContentType.Application.Json.contentSubtype
     )
-    private var formUrlEncodedParams: HashMap<String, String>? = null
-    private var requestBody: Any? = null
-    private var appendAuthHeader: Boolean = true
+        private set
+    var formUrlEncodedParams: HashMap<String, String>? = null
+        private set
+    var requestBody: Any? = null
+        private set
 
-    private val httpClient: HttpClient by lazy {
-        NetworkModule.provideKtorHttpClient()
-    }
+    var appendAuthHeader: Boolean = true
+        private set
 
-    private val json = Json {
-        ignoreUnknownKeys = true
-    }
+    @Inject
+    lateinit var httpClient: HttpClient
+
+    @Inject
+    lateinit var json: Json
 
     private fun resetRequest() = apply {
         queryParams = null
@@ -97,13 +106,16 @@ class Request {
         return try {
             val apiResponse = httpClient.request {
                 //Set method
-                method = this@Request.method
+                this@Request.method?.let {
+                    method = it
+                }
+
                 //Set url and add query params if any
                 url(
-                    scheme = serviceUrl.protocol.name,
-                    port = serviceUrl.port,
-                    host = serviceUrl.host,
-                    path = serviceUrl.encodedPath,
+                    scheme = serviceUrl?.protocol?.name,
+                    port = serviceUrl?.port,
+                    host = serviceUrl?.host,
+                    path = serviceUrl?.encodedPath,
                 ) {
                     queryParams?.let {
                         if (it.isNotEmpty()) {
