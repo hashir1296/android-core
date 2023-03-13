@@ -100,7 +100,7 @@ object NetworkModule {
     @OptIn(ExperimentalSerializationApi::class)
     @Singleton
     @Provides
-    private fun provideSerializer() = Json {
+    fun provideSerializer() = Json {
         isLenient = true
         prettyPrint = true
         ignoreUnknownKeys = true

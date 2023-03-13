@@ -89,7 +89,7 @@ dependencies {
     }
 
     // Hilt dependencies
-     val hilt = "2.38.1"
+     val hilt = "2.44.2"
     implementation("com.google.dagger:hilt-android:$hilt")
     kapt("com.google.dagger:hilt-android-compiler:$hilt")
 

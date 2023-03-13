@@ -7,53 +7,17 @@ import org.junit.Test
 
 
 class RequestTest {
-    private var request: Request = Request()
+    private lateinit var request: Request
 
     @Before
     fun setup() {
-
+        request = Request()
     }
 
+    /*Test if httpMethod() function is working as expected*/
     @Test
-    fun `url with empty host`() {
-        val url =
-            Url(URLBuilder(host = "", pathSegments = emptyList(), protocol = URLProtocol.HTTP))
-        assert(url.)
-    }
-
-    @Test
-    fun queryParams() {
-    }
-
-    @Test
-    fun contentType() {
-    }
-
-    @Test
-    fun additionalHeaders() {
-    }
-
-    @Test
-    fun requestBody() {
-    }
-
-    @Test
-    fun formUrlEncodedParams() {
-    }
-
-    @Test
-    fun formMultiPartData() {
-    }
-
-    @Test
-    fun sendAuthHeader() {
-    }
-
-    @Test
-    fun send() {
-    }
-
-    @Test
-    fun `aSas aS`() {
+    fun httpMethod() {
+        request.httpMethod(HttpMethod.Get)
+        assert(request.method == HttpMethod.Get)
     }
 }
