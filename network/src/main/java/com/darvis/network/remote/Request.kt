@@ -20,18 +20,20 @@ import kotlinx.serialization.json.Json
 
 private const val TAG = "Network Request"
 
-class Request {
-    private lateinit var serviceUrl: Url
-    private lateinit var method: HttpMethod
-    private var queryParams: HashMap<String, String?>? = null
-    private var additionalHeaders: HashMap<String, String>? = null
-    private var contentType: ContentType = ContentType(
+class Request private constructor(
+    val serviceUrl: Url,
+    val method: HttpMethod,
+    val queryParams: HashMap<String, String?>? = null,
+    val additionalHeaders: HashMap<String, String>? = null,
+    val contentType: ContentType = ContentType(
         contentType = ContentType.Application.Json.contentType,
         ContentType.Application.Json.contentSubtype
-    )
-    private var formUrlEncodedParams: HashMap<String, String>? = null
-    private var requestBody: Any? = null
-    private var appendAuthHeader: Boolean = true
+    ),
+    val formUrlEncodedParams: HashMap<String, String>? = null,
+    val requestBody: Any? = null,
+    val appendAuthHeader: Boolean = true
+) {
+
 
     private val httpClient: HttpClient by lazy {
         NetworkModule.provideKtorHttpClient()
@@ -41,56 +43,74 @@ class Request {
         ignoreUnknownKeys = true
     }
 
-    private fun resetRequest() = apply {
-        queryParams = null
-        additionalHeaders = null
-        formUrlEncodedParams = null
-        requestBody = null
-    }
+    data class Builder(
+        var serviceUrl: Url,
+        var method: HttpMethod,
+        var queryParams: HashMap<String, String?>? = null,
+        var additionalHeaders: HashMap<String, String>? = null,
+        var contentType: ContentType = ContentType(
+            contentType = ContentType.Application.Json.contentType,
+            ContentType.Application.Json.contentSubtype
+        ),
+        var formUrlEncodedParams: HashMap<String, String>? = null,
+        var requestBody: Any? = null,
+        var appendAuthHeader: Boolean = true
+    ) {
 
-
-    fun httpMethod(
-        httpMethod: HttpMethod,
-    ) = apply {
-        method = httpMethod
-    }
-
-    fun url(
-        host: String, port: Int, protocol: URLProtocol = URLProtocol.HTTP, endPoint: String
-    ) = apply {
-        serviceUrl = URLBuilder(
-            protocol = protocol, host = host, port = port, pathSegments = listOf(endPoint)
-        ).build()
-    }
-
-    fun queryParams(paramsMap: HashMap<String, String?>) = apply {
-        if (paramsMap.isNotEmpty()) {
-            queryParams = paramsMap
+        fun httpMethod(
+            httpMethod: HttpMethod,
+        ) = apply {
+            method = httpMethod
         }
-    }
 
-    fun contentType(type: ContentType) = apply {
-        contentType = type
-    }
-
-    fun additionalHeaders(additionalHeadersMap: HashMap<String, String>) = apply {
-        if (additionalHeadersMap.isNotEmpty()) {
-            additionalHeaders = additionalHeadersMap
+        fun url(
+            host: String, port: Int, protocol: URLProtocol = URLProtocol.HTTP, endPoint: String
+        ) = apply {
+            serviceUrl = URLBuilder(
+                protocol = protocol, host = host, port = port, pathSegments = listOf(endPoint)
+            ).build()
         }
-    }
 
-    fun requestBody(body: Any?) = apply {
-        this@Request.requestBody = body
-    }
-
-    fun formUrlEncodedParams(paramsMap: HashMap<String, String>) = apply {
-        if (paramsMap.isNotEmpty()) {
-            formUrlEncodedParams = paramsMap
+        fun queryParams(paramsMap: HashMap<String, String?>) = apply {
+            if (paramsMap.isNotEmpty()) {
+                queryParams = paramsMap
+            }
         }
-    }
 
-    fun sendAuthHeader(value: Boolean) = apply {
-        appendAuthHeader = value
+        fun contentType(type: ContentType) = apply {
+            contentType = type
+        }
+
+        fun additionalHeaders(additionalHeadersMap: HashMap<String, String>) = apply {
+            if (additionalHeadersMap.isNotEmpty()) {
+                additionalHeaders = additionalHeadersMap
+            }
+        }
+
+        fun requestBody(body: Any?) = apply {
+            requestBody = body
+        }
+
+        fun formUrlEncodedParams(paramsMap: HashMap<String, String>) = apply {
+            if (paramsMap.isNotEmpty()) {
+                formUrlEncodedParams = paramsMap
+            }
+        }
+
+        fun sendAuthHeader(value: Boolean) = apply {
+            appendAuthHeader = value
+        }
+
+        fun build() = Request(
+            method = method,
+            serviceUrl = serviceUrl,
+            queryParams = queryParams,
+            formUrlEncodedParams = formUrlEncodedParams,
+            requestBody = requestBody,
+            contentType = contentType,
+            additionalHeaders = additionalHeaders,
+            appendAuthHeader = appendAuthHeader
+        )
     }
 
     suspend fun send(): NetworkResult<HttpResponse, ErrorModel> {
@@ -149,11 +169,10 @@ class Request {
                     }
                 }
             }
-            resetRequest()
             NetworkResult.Success(apiResponse.body())
         } catch (ex: RedirectResponseException) {
             //3xx exceptions
-            resetRequest()
+
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
@@ -164,7 +183,7 @@ class Request {
             )
         } catch (ex: ClientRequestException) {
             //4xx exceptions
-            resetRequest()
+
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
@@ -175,7 +194,7 @@ class Request {
             )
         } catch (ex: ServerResponseException) {
             //5xx exceptions
-            resetRequest()
+
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
@@ -185,7 +204,7 @@ class Request {
                 errorBody = errorModel
             )
         } catch (ex: Exception) {
-            resetRequest()
+
             NetworkResult.Error(
                 message = ex.message ?: "Something went wrong", code = -1, errorBody = null
             )
