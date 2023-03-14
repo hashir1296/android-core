@@ -1,14 +1,24 @@
 package com.darvis.androidcore.network
 
+import com.darvis.androidcore.PostMockResponse
+import com.darvis.androidcore.PostMockResponseIObject
+import com.darvis.network.models.NetworkResult
 import com.darvis.network.remote.Request
+import io.ktor.client.call.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
-import junit.framework.TestCase.assertTrue
+import junit.framework.TestCase.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
 
 class RequestTest {
     private lateinit var request: Request
+    private val apiMockEngine = ApiMockEngine()
+    private val mockClient = apiMockEngine.get()
+    private val host = "jsonplaceholder.typicode.com"
 
     @Before
     fun setup() {
@@ -71,7 +81,7 @@ class RequestTest {
         request.contentType(ContentType.Application.Json)
         val result = request.contentType.contentType == request.contentType.contentType
 
-        assertTrue("Content type is correct",result)
+        assertTrue("Content type is correct", result)
     }
 
     @Test
@@ -79,7 +89,7 @@ class RequestTest {
         request.contentType(ContentType.Application.Json)
         val result = request.contentType.contentSubtype == request.contentType.contentSubtype
 
-        assertTrue("Content subtype is correct",result)
+        assertTrue("Content subtype is correct", result)
     }
 
     @Test
@@ -91,6 +101,58 @@ class RequestTest {
         val result = request.additionalHeaders == headers
 
         assertTrue("Additional headers are attached", result)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `dummy Get network call`() {
+        runTest {
+            val api = Request().httpMethod(HttpMethod.Get).url(
+                host = host, protocol = URLProtocol.HTTPS, endPoint = "posts", port = DEFAULT_PORT
+            ).sendAuthHeader(false).send(httpClient = mockClient)
+
+            when (api) {
+                is NetworkResult.Error -> {
+                }
+                NetworkResult.Loading -> {
+
+                }
+                is NetworkResult.Success -> {
+                    api.response?.body<List<PostMockResponseIObject>>()?.let {
+                        assertTrue("Fetching post from mock api successfully", it.size == 5)
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `network call request url correctness`() {
+        runTest {
+            val request = Request().httpMethod(HttpMethod.Get).url(
+                host = host, protocol = URLProtocol.HTTPS, endPoint = "posts", port = DEFAULT_PORT
+            ).sendAuthHeader(false)
+
+            val api = request.send(httpClient = mockClient)
+
+            when (api) {
+                is NetworkResult.Success -> {
+                    val requestURL = api.response?.request?.url?.toURI().toString()
+                    val urlBuilt = request.serviceUrl?.toURI()?.toString()
+
+                    if (urlBuilt == null) fail()
+                    else assertTrue(
+                        "Url is correct. Url built",
+                        urlBuilt == requestURL
+                    )
+                }
+                else -> {
+                    fail()
+                }
+            }
+
+        }
     }
 
 }

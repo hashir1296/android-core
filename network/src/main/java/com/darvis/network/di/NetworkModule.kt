@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.*
+import io.ktor.client.engine.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -23,13 +24,11 @@ import javax.inject.Singleton
 import javax.net.ssl.SSLContext
 
 private const val TIME_OUT = 15000L //15 seconds
-private const val SOCKET_PING_INTERVAL = 5000L
 
 @InstallIn(SingletonComponent::class)
 @Module
 object NetworkModule {
     private val TAG = NetworkModule::class.simpleName
-
     @Singleton
     @Provides
     fun provideKtorHttpClient() = HttpClient(Android) {
@@ -47,7 +46,6 @@ object NetworkModule {
         install(ContentNegotiation) {
             json(json = provideSerializer())
         }
-
 
         HttpResponseValidator {
             validateResponse { response: HttpResponse ->

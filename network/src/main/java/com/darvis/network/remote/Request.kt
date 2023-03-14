@@ -51,10 +51,11 @@ class Request {
     lateinit var json: Json
 
     private fun resetRequest() = apply {
-        queryParams = null
+        /*queryParams = null
         additionalHeaders = null
         formUrlEncodedParams = null
         requestBody = null
+        serviceUrl = null*/
     }
 
 
@@ -102,7 +103,7 @@ class Request {
         appendAuthHeader = value
     }
 
-    suspend fun send(): NetworkResult<HttpResponse, ErrorModel> {
+    suspend fun send(httpClient: HttpClient = this.httpClient): NetworkResult<HttpResponse, ErrorModel> {
         return try {
             val apiResponse = httpClient.request {
                 //Set method
