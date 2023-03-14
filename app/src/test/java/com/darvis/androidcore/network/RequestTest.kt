@@ -1,6 +1,5 @@
 package com.darvis.androidcore.network
 
-import com.darvis.androidcore.PostMockResponse
 import com.darvis.androidcore.PostMockResponseIObject
 import com.darvis.network.models.NetworkResult
 import com.darvis.network.remote.Request
@@ -42,13 +41,12 @@ class RequestTest {
 
     @Test
     fun `query parameters should appended in request object`() {
-//        val correctURl = "http://172.16.20.161:1000/token?param1=1&param2=2"
-        val queryParams = hashMapOf("param1" to "1", "param2" to "2")
+        val queryParams = HashMap<String, String?>()
+        queryParams["param1"] = "1"
+        queryParams["param2"] = "2"
         request.queryParams(queryParams)
 
-
         val result = request.queryParams == queryParams
-
         assertTrue("Query params are attached", result)
     }
 
@@ -143,8 +141,7 @@ class RequestTest {
 
                     if (urlBuilt == null) fail()
                     else assertTrue(
-                        "Url is correct. Url built",
-                        urlBuilt == requestURL
+                        "Url is correct. Url built", urlBuilt == requestURL
                     )
                 }
                 else -> {

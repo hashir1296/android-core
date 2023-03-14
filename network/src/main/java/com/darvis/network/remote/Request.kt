@@ -27,7 +27,7 @@ class Request {
         private set
     var method: HttpMethod? = null
         private set
-    var queryParams: HashMap<String, String>? = null
+    var queryParams: HashMap<String, String?>? = null
         private set
     var additionalHeaders: HashMap<String, String>? = null
         private set
@@ -73,7 +73,7 @@ class Request {
         ).build()
     }
 
-    fun queryParams(paramsMap: HashMap<String, String>) = apply {
+    fun queryParams(paramsMap: HashMap<String, String?>) = apply {
         if (paramsMap.isNotEmpty()) {
             queryParams = paramsMap
         }
@@ -122,7 +122,7 @@ class Request {
                         if (it.isNotEmpty()) {
                             it.forEach { entry ->
                                 //Only append entry if value is not null
-                                entry.value.let { value ->
+                                entry.value?.let { value ->
                                     parameters.append(entry.key, value)
                                 }
                             }
