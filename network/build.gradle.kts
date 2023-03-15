@@ -52,10 +52,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:+")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.4.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.core:core-ktx:1.9.0")
     //Kotlin Coroutines
     val coroutinesVersion = "1.6.4"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
@@ -84,6 +81,11 @@ dependencies {
         // excluding org.json which is provided by Android
         exclude(group = "org.json", module = "json")
     }
+
+    // Hilt dependencies
+    val hilt = "2.44.2"
+    implementation("com.google.dagger:hilt-android:$hilt")
+    kapt("com.google.dagger:hilt-android-compiler:$hilt")
 
     // Required -- JUnit 4 framework
     testImplementation ("junit:junit:4.13.2")

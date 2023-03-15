@@ -32,7 +32,7 @@ class Request private constructor(
 
     var queryParams: HashMap<String, String?>? = null
         private set
-    var additionalHeaders: HashMap<String, String>? = null
+    var headers: HashMap<String, String>? = null
         private set
     var contentType: ContentType = ContentType(
         contentType = ContentType.Application.Json.contentType,
@@ -43,12 +43,10 @@ class Request private constructor(
         private set
     var requestBody: Any? = null
         private set
-    var appendAuthHeader: Boolean = true
-        private set
 
     private fun clearRequest() = apply {
         this.queryParams = null
-        this.additionalHeaders = null
+        this.headers = null
         this.formUrlEncodedParams = null
         this.requestBody = null
     }
@@ -77,9 +75,9 @@ class Request private constructor(
         contentType = type
     }
 
-    fun setAdditionalHeaders(additionalHeadersMap: HashMap<String, String>) = apply {
+    fun setHeaders(additionalHeadersMap: HashMap<String, String>) = apply {
         if (additionalHeadersMap.isNotEmpty()) {
-            additionalHeaders = additionalHeadersMap
+            headers = additionalHeadersMap
         }
     }
 
@@ -91,10 +89,6 @@ class Request private constructor(
         if (paramsMap.isNotEmpty()) {
             formUrlEncodedParams = paramsMap
         }
-    }
-
-    fun sendAuthHeader(value: Boolean) = apply {
-        appendAuthHeader = value
     }
 
     class Builder {
@@ -142,18 +136,13 @@ class Request private constructor(
                         }
                     }
                 }
-                additionalHeaders?.let {
+                this@Request.headers?.let {
                     if (it.isNotEmpty()) {
                         it.entries.forEach { entry ->
                             headers.append(entry.key, entry.value)
                         }
                     }
                 }
-
-                //Set token
-                if (appendAuthHeader) headers.append(
-                    "Authorization", SessionManager.provideAccessTokenWithBearer()
-                )
 
                 contentType.let { type ->
                     headers.append(type.contentType, type.contentSubtype)

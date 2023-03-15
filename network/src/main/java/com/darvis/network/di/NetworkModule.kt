@@ -2,7 +2,6 @@ package com.darvis.network.di
 
 import android.util.Log
 import com.darvis.network.helpers.TrustAllX509TrustManager
-import com.darvis.network.remote.Request
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -90,13 +89,6 @@ object NetworkModule {
                 httpsURLConnection.setHostnameVerifier { _, _ -> true }
             }
         }
-    }
-
-
-    @Provides
-    @Singleton
-    fun provideRequest(httpClient: HttpClient, json: Json): Request {
-        return Request.Builder().client(httpClient).serializer(json).build()
     }
 
     @OptIn(ExperimentalSerializationApi::class)
