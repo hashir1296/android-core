@@ -2,6 +2,11 @@ package com.darvis.network.di
 
 import android.util.Log
 import com.darvis.network.helpers.TrustAllX509TrustManager
+import com.darvis.network.remote.Request
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.plugins.*
@@ -15,16 +20,20 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.security.SecureRandom
+import javax.inject.Singleton
 import javax.net.ssl.SSLContext
 
 private const val TIME_OUT = 15000L //15 seconds
-private const val SOCKET_PING_INTERVAL = 5000L
 
+@Module
+@InstallIn(SingletonComponent::class)
 object NetworkModule {
 
 
     private val TAG = NetworkModule::class.simpleName
 
+    @Provides
+    @Singleton
     fun provideKtorHttpClient() = HttpClient(Android) {
         //How we want to log our apis
         install(Logging) {
@@ -58,30 +67,6 @@ object NetworkModule {
             }
         }
 
-        /*   HttpResponseValidator {
-               validateResponse { response: HttpResponse ->
-                   val statusCode = response.status.value
-                   when (statusCode) {
-                       in 300..399 -> throw RedirectResponseException(
-                           response = response, cachedResponseText = response.toString()
-                       )
-                       in 400..499 -> throw ClientRequestException(
-                           response = response, cachedResponseText = response.toString()
-                       )
-                       in 500..599 -> throw ServerResponseException(
-                           response = response, cachedResponseText = response.toString()
-                       )
-                   }
-
-                   if (statusCode >= 600) {
-                       throw ResponseException(
-                           response = response, cachedResponseText = response.toString()
-                       )
-                   }
-               }
-           }*/
-
-
         install(DefaultRequest) {
             accept(ContentType.Application.Json)// Sends a accept header of to application/json
         }
@@ -107,8 +92,17 @@ object NetworkModule {
         }
     }
 
+
+    @Provides
+    @Singleton
+    fun provideRequest(httpClient: HttpClient, json: Json): Request {
+        return Request.Builder().client(httpClient).serializer(json).build()
+    }
+
     @OptIn(ExperimentalSerializationApi::class)
-    private fun provideSerializer() = Json {
+    @Provides
+    @Singleton
+    fun provideSerializer() = Json {
         isLenient = true
         prettyPrint = true
         ignoreUnknownKeys = true

@@ -1,7 +1,7 @@
+@file:Suppress("unused")
 package com.darvis.network.remote
 
 import android.util.Log
-import com.darvis.network.di.NetworkModule
 import com.darvis.network.models.ErrorModel
 import com.darvis.network.models.NetworkResult
 import io.ktor.client.*
@@ -21,109 +21,114 @@ import kotlinx.serialization.json.Json
 private const val TAG = "Network Request"
 
 class Request private constructor(
-    val serviceUrl: Url,
-    val method: HttpMethod,
-    val queryParams: HashMap<String, String?>? = null,
-    val additionalHeaders: HashMap<String, String>? = null,
-    val contentType: ContentType = ContentType(
-        contentType = ContentType.Application.Json.contentType,
-        ContentType.Application.Json.contentSubtype
-    ),
-    val formUrlEncodedParams: HashMap<String, String>? = null,
-    val requestBody: Any? = null,
-    val appendAuthHeader: Boolean = true
+    val httpClient: HttpClient, val json: Json
 ) {
 
+    var serviceUrl: Url? = null
+        private set
+    var method: HttpMethod? = null
+        private set
 
-    private val httpClient: HttpClient by lazy {
-        NetworkModule.provideKtorHttpClient()
+    var queryParams: HashMap<String, String?>? = null
+        private set
+    var additionalHeaders: HashMap<String, String>? = null
+        private set
+    var contentType: ContentType = ContentType(
+        contentType = ContentType.Application.Json.contentType,
+        ContentType.Application.Json.contentSubtype
+    )
+        private set
+    var formUrlEncodedParams: HashMap<String, String>? = null
+        private set
+    var requestBody: Any? = null
+        private set
+    var appendAuthHeader: Boolean = true
+        private set
+
+    private fun clearRequest() = apply {
+        this.serviceUrl = null
+        this.method = null
+        this.queryParams = null
+        this.additionalHeaders = null
+        this.formUrlEncodedParams = null
+        this.requestBody = null
     }
 
-    private val json = Json {
-        ignoreUnknownKeys = true
+    fun setHttpMethod(
+        httpMethod: HttpMethod,
+    ) = apply {
+        method = httpMethod
     }
 
-    data class Builder(
-        var serviceUrl: Url,
-        var method: HttpMethod,
-        var queryParams: HashMap<String, String?>? = null,
-        var additionalHeaders: HashMap<String, String>? = null,
-        var contentType: ContentType = ContentType(
-            contentType = ContentType.Application.Json.contentType,
-            ContentType.Application.Json.contentSubtype
-        ),
-        var formUrlEncodedParams: HashMap<String, String>? = null,
-        var requestBody: Any? = null,
-        var appendAuthHeader: Boolean = true
-    ) {
+    fun setUrl(
+        host: String, port: Int, protocol: URLProtocol = URLProtocol.HTTP, endPoint: String
+    ) = apply {
+        serviceUrl = URLBuilder(
+            protocol = protocol, host = host, port = port, pathSegments = listOf(endPoint)
+        ).build()
+    }
 
-        fun httpMethod(
-            httpMethod: HttpMethod,
-        ) = apply {
-            method = httpMethod
+    fun setQueryParams(paramsMap: HashMap<String, String?>) = apply {
+        if (paramsMap.isNotEmpty()) {
+            queryParams = paramsMap
+        }
+    }
+
+    fun setContentType(type: ContentType) = apply {
+        contentType = type
+    }
+
+    fun setAdditionalHeaders(additionalHeadersMap: HashMap<String, String>) = apply {
+        if (additionalHeadersMap.isNotEmpty()) {
+            additionalHeaders = additionalHeadersMap
+        }
+    }
+
+    fun setRequestBody(body: Any?) = apply {
+        requestBody = body
+    }
+
+    fun setFormUrlEncodedParams(paramsMap: HashMap<String, String>) = apply {
+        if (paramsMap.isNotEmpty()) {
+            formUrlEncodedParams = paramsMap
+        }
+    }
+
+    fun sendAuthHeader(value: Boolean) = apply {
+        appendAuthHeader = value
+    }
+
+    class Builder {
+        private lateinit var httpClient: HttpClient
+        private lateinit var jsonSerializer: Json
+
+        fun client(httpClient: HttpClient) = apply {
+            this.httpClient = httpClient
         }
 
-        fun url(
-            host: String, port: Int, protocol: URLProtocol = URLProtocol.HTTP, endPoint: String
-        ) = apply {
-            serviceUrl = URLBuilder(
-                protocol = protocol, host = host, port = port, pathSegments = listOf(endPoint)
-            ).build()
-        }
-
-        fun queryParams(paramsMap: HashMap<String, String?>) = apply {
-            if (paramsMap.isNotEmpty()) {
-                queryParams = paramsMap
-            }
-        }
-
-        fun contentType(type: ContentType) = apply {
-            contentType = type
-        }
-
-        fun additionalHeaders(additionalHeadersMap: HashMap<String, String>) = apply {
-            if (additionalHeadersMap.isNotEmpty()) {
-                additionalHeaders = additionalHeadersMap
-            }
-        }
-
-        fun requestBody(body: Any?) = apply {
-            requestBody = body
-        }
-
-        fun formUrlEncodedParams(paramsMap: HashMap<String, String>) = apply {
-            if (paramsMap.isNotEmpty()) {
-                formUrlEncodedParams = paramsMap
-            }
-        }
-
-        fun sendAuthHeader(value: Boolean) = apply {
-            appendAuthHeader = value
+        fun serializer(json: Json) = apply {
+            this.jsonSerializer = json
         }
 
         fun build() = Request(
-            method = method,
-            serviceUrl = serviceUrl,
-            queryParams = queryParams,
-            formUrlEncodedParams = formUrlEncodedParams,
-            requestBody = requestBody,
-            contentType = contentType,
-            additionalHeaders = additionalHeaders,
-            appendAuthHeader = appendAuthHeader
+            httpClient = httpClient, json = jsonSerializer
         )
+
     }
 
     suspend fun send(): NetworkResult<HttpResponse, ErrorModel> {
         return try {
             val apiResponse = httpClient.request {
                 //Set method
-                method = this@Request.method
+                this@Request.method?.let {
+                    method = it
+                }
                 //Set url and add query params if any
                 url(
-                    scheme = serviceUrl.protocol.name,
-                    port = serviceUrl.port,
-                    host = serviceUrl.host,
-                    path = serviceUrl.encodedPath,
+                    scheme = serviceUrl?.protocol?.name,
+                    port = serviceUrl?.port,
+                    host = serviceUrl?.host,
+                    path = serviceUrl?.encodedPath,
                 ) {
                     queryParams?.let {
                         if (it.isNotEmpty()) {
@@ -169,10 +174,11 @@ class Request private constructor(
                     }
                 }
             }
+            clearRequest()
             NetworkResult.Success(apiResponse.body())
         } catch (ex: RedirectResponseException) {
             //3xx exceptions
-
+            clearRequest()
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
@@ -183,7 +189,7 @@ class Request private constructor(
             )
         } catch (ex: ClientRequestException) {
             //4xx exceptions
-
+            clearRequest()
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
@@ -194,7 +200,7 @@ class Request private constructor(
             )
         } catch (ex: ServerResponseException) {
             //5xx exceptions
-
+            clearRequest()
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
@@ -204,7 +210,7 @@ class Request private constructor(
                 errorBody = errorModel
             )
         } catch (ex: Exception) {
-
+            clearRequest()
             NetworkResult.Error(
                 message = ex.message ?: "Something went wrong", code = -1, errorBody = null
             )
