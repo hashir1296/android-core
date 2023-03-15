@@ -12,6 +12,7 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.util.pipeline.*
 import io.socket.client.IO
 import io.socket.client.SocketIOException
 import io.socket.emitter.Emitter
@@ -101,6 +102,18 @@ class Request private constructor(
 
         fun serializer(json: Json) = apply {
             this.jsonSerializer = json
+        }
+
+        fun addRequestInterceptor(
+            phase: PipelinePhase, block: PipelineInterceptor<Any, HttpRequestBuilder>
+        ) = apply {
+            httpClient.sendPipeline.intercept(phase = phase, block = block)
+        }
+
+        fun addResponseInterceptor(
+            phase: PipelinePhase,  block: PipelineInterceptor<HttpResponse, Unit>
+        ) = apply {
+            httpClient.receivePipeline.intercept(phase = phase, block = block)
         }
 
         fun build() = Request(
