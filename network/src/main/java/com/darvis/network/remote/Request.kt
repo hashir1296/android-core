@@ -1,4 +1,5 @@
 @file:Suppress("unused")
+
 package com.darvis.network.remote
 
 import android.util.Log
@@ -24,9 +25,9 @@ class Request private constructor(
     val httpClient: HttpClient, val json: Json
 ) {
 
-    var serviceUrl: Url? = null
+    lateinit var serviceUrl: Url
         private set
-    var method: HttpMethod? = null
+    lateinit var method: HttpMethod
         private set
 
     var queryParams: HashMap<String, String?>? = null
@@ -46,8 +47,6 @@ class Request private constructor(
         private set
 
     private fun clearRequest() = apply {
-        this.serviceUrl = null
-        this.method = null
         this.queryParams = null
         this.additionalHeaders = null
         this.formUrlEncodedParams = null
@@ -118,17 +117,19 @@ class Request private constructor(
 
     suspend fun send(): NetworkResult<HttpResponse, ErrorModel> {
         return try {
+            if (::method.isInitialized.not() || ::serviceUrl.isInitialized.not()) throw UninitializedPropertyAccessException(
+                "Make sure method and service url are initialized properly"
+            )
+
             val apiResponse = httpClient.request {
                 //Set method
-                this@Request.method?.let {
-                    method = it
-                }
+                method = this@Request.method
                 //Set url and add query params if any
                 url(
-                    scheme = serviceUrl?.protocol?.name,
-                    port = serviceUrl?.port,
-                    host = serviceUrl?.host,
-                    path = serviceUrl?.encodedPath,
+                    scheme = serviceUrl.protocol.name,
+                    port = serviceUrl.port,
+                    host = serviceUrl.host,
+                    path = serviceUrl.encodedPath,
                 ) {
                     queryParams?.let {
                         if (it.isNotEmpty()) {
