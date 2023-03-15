@@ -1,12 +1,15 @@
 package com.darvis.androidcore.network
 
 
+import com.darvis.androidcore.LoginMockResponse
 import com.darvis.androidcore.PostMockResponse
 import com.darvis.network.di.NetworkModule
+import com.darvis.network.models.LoginResponse
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.observer.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -44,7 +47,6 @@ class ApiMockEngine {
                 }
             }
         }
-
         install(UserAgent) {
             agent = "mobile"
         }
@@ -66,6 +68,9 @@ class ApiMockEngine {
                     }
                     "/users" -> {
                         respond(UsersMockResponse(), HttpStatusCode.OK, responseHeaders)
+                    }
+                    "/token" ->{
+                        respond(LoginMockResponse(), HttpStatusCode.OK, responseHeaders)
                     }
                     else -> {
                         error("Unhandled ${request.url.encodedPath}")
