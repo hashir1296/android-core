@@ -49,22 +49,6 @@ object NetworkModule {
             json(json = provideSerializer())
         }
 
-        install(ResponseObserver) {
-            onResponse { httpResponse ->
-                when (httpResponse.status.value) {
-                    in 300..399 -> throw RedirectResponseException(
-                        response = httpResponse, cachedResponseText = httpResponse.toString()
-                    )
-                    in 400..499 -> throw ClientRequestException(
-                        response = httpResponse, cachedResponseText = httpResponse.toString()
-                    )
-                    in 500..599 -> throw ServerResponseException(
-                        response = httpResponse, cachedResponseText = httpResponse.toString()
-                    )
-                }
-            }
-        }
-
         HttpResponseValidator {
             validateResponse { response: HttpResponse ->
                 val statusCode = response.status.value

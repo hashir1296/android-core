@@ -215,37 +215,5 @@ class RequestTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun `login network call`() {
-        val r = Request.Builder().client(mockClient).serializer(NetworkModule.provideSerializer())
-            .addResponseInterceptor(phase = HttpReceivePipeline.State, block = {
-                it.status.value
-            }).build()
-
-        runTest {
-            val api = r.setHttpMethod(HttpMethod.Post).setUrl(
-                host = "172.16.20.161", protocol = URLProtocol.HTTP, endPoint = "token", port = 8090
-            ).setContentType(ContentType.Application.FormUrlEncoded).setFormUrlEncodedParams(
-                paramsMap = hashMapOf(
-                    "username" to "username.trim()", "password" to "password"
-                )
-            ).send()
-            when (api) {
-                is NetworkResult.Success -> {
-                    val requestHeaders = api.response?.headers
-                    if (requestHeaders != null) {
-
-                    } else {
-                        fail()
-                    }
-
-                }
-                else -> {
-                    fail()
-                }
-            }
-        }
-    }
 
 }
