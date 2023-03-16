@@ -111,7 +111,7 @@ class Request private constructor(
         }
 
         fun addResponseInterceptor(
-            phase: PipelinePhase,  block: PipelineInterceptor<HttpResponse, Unit>
+            phase: PipelinePhase, block: PipelineInterceptor<HttpResponse, Unit>
         ) = apply {
             httpClient.receivePipeline.intercept(phase = phase, block = block)
         }
@@ -186,8 +186,8 @@ class Request private constructor(
                 ErrorModel.serializer(), ex.response.body()
             )
             NetworkResult.Error(
-                message = ex.response.status.description,
-                code = ex.response.status.value,
+                message = errorModel.message ?: ex.response.status.description,
+                code = errorModel.code ?: ex.response.status.value,
                 errorBody = errorModel
             )
         } catch (ex: ClientRequestException) {
@@ -197,8 +197,8 @@ class Request private constructor(
                 ErrorModel.serializer(), ex.response.body()
             )
             NetworkResult.Error(
-                message = ex.response.status.description,
-                code = ex.response.status.value,
+                message = errorModel.message ?: ex.response.status.description,
+                code = errorModel.code ?: ex.response.status.value,
                 errorBody = errorModel
             )
         } catch (ex: ServerResponseException) {
@@ -208,8 +208,8 @@ class Request private constructor(
                 ErrorModel.serializer(), ex.response.body()
             )
             NetworkResult.Error(
-                message = ex.response.status.description,
-                code = ex.response.status.value,
+                message = errorModel.message ?: ex.response.status.description,
+                code = errorModel.code ?: ex.response.status.value,
                 errorBody = errorModel
             )
         } catch (ex: Exception) {

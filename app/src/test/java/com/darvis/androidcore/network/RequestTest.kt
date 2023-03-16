@@ -173,7 +173,6 @@ class RequestTest {
                     } else {
                         fail()
                     }
-
                 }
                 else -> {
                     fail()
