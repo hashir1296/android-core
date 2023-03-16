@@ -111,9 +111,9 @@ class Request private constructor(
         }
 
         fun addResponseInterceptor(
-            phase: PipelinePhase, block: PipelineInterceptor<HttpResponse, Unit>
+            phase: PipelinePhase, block: PipelineInterceptor<HttpResponseContainer, HttpClientCall>
         ) = apply {
-            httpClient.receivePipeline.intercept(phase = phase, block = block)
+            httpClient.responsePipeline.intercept(phase = phase, block = block)
         }
 
         fun build() = Request(
@@ -178,37 +178,35 @@ class Request private constructor(
                 }
             }
             clearRequest()
-            NetworkResult.Success(apiResponse.body())
-        } catch (ex: RedirectResponseException) {
-            //3xx exceptions
+            when (apiResponse.status.value) {
+                //200 error code is success
+                in 200..299 -> return NetworkResult.Success(apiResponse.body())
+
+                //3xx exceptions - RedirectResponseException
+                in 300..399 -> throw RedirectResponseException(
+                    response = apiResponse, cachedResponseText = apiResponse.bodyAsText()
+                )
+
+                //4xx exceptions - ClientRequestException
+                in 400..499 -> throw ClientRequestException(
+                    response = apiResponse, cachedResponseText = apiResponse.bodyAsText()
+                )
+
+                //5xx exceptions - ServerResponseException
+                in 500..599 -> throw ServerResponseException(
+                    response = apiResponse, cachedResponseText = apiResponse.bodyAsText()
+                )
+                else -> {
+                    throw Exception()
+                }
+            }
+        } catch (ex: ResponseException) {
             clearRequest()
             val errorModel = json.decodeFromString(
                 ErrorModel.serializer(), ex.response.body()
             )
             NetworkResult.Error(
-                message = errorModel.message ?: ex.response.status.description,
-                code = errorModel.code ?: ex.response.status.value,
-                errorBody = errorModel
-            )
-        } catch (ex: ClientRequestException) {
-            //4xx exceptions
-            clearRequest()
-            val errorModel = json.decodeFromString(
-                ErrorModel.serializer(), ex.response.body()
-            )
-            NetworkResult.Error(
-                message = errorModel.message ?: ex.response.status.description,
-                code = errorModel.code ?: ex.response.status.value,
-                errorBody = errorModel
-            )
-        } catch (ex: ServerResponseException) {
-            //5xx exceptions
-            clearRequest()
-            val errorModel = json.decodeFromString(
-                ErrorModel.serializer(), ex.response.body()
-            )
-            NetworkResult.Error(
-                message = errorModel.message ?: ex.response.status.description,
+                message = errorModel.detail ?: errorModel.message ?: ex.response.status.description,
                 code = errorModel.code ?: ex.response.status.value,
                 errorBody = errorModel
             )

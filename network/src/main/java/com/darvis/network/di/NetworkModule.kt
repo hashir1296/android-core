@@ -49,23 +49,6 @@ object NetworkModule {
             json(json = provideSerializer())
         }
 
-        HttpResponseValidator {
-            validateResponse { response: HttpResponse ->
-                val statusCode = response.status.value
-
-                println("HTTP status: $statusCode")
-
-                when (statusCode) {
-                    in 300..399 -> throw RedirectResponseException(response = response, cachedResponseText = response.toString())
-                    in 400..499 -> throw ClientRequestException(response = response, cachedResponseText = response.toString())
-                    in 500..599 -> throw ServerResponseException(response = response, cachedResponseText = response.toString())
-                }
-
-                if (statusCode >= 600) {
-                    throw ResponseException(response = response, cachedResponseText = response.toString())
-                }
-            }
-        }
 
         install(DefaultRequest) {
             accept(ContentType.Application.Json)// Sends a accept header of to application/json
