@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //loginCall()
+        loginCall()
     }
 
     private fun loginCall() {
@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                 }, 100)
             }.build()
+
 
         CoroutineScope(Dispatchers.IO).launch {
             val api = request.setHttpMethod(HttpMethod.Post)
