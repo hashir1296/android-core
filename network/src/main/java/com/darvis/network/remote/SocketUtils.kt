@@ -59,6 +59,12 @@ object SocketUtils {
         }
     }
 
+    fun listenToEvents(vararg events: String, emitterListener: Emitter.Listener) {
+        for (event in events) {
+            mSocket?.on(event, emitterListener)
+        }
+    }
+
     fun disconnectSocket() {
         mSocket?.disconnect()
         mSocket?.off()
